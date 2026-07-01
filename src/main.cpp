@@ -55,6 +55,58 @@ void generateWebsiteQR()
     cout << "\nQR Code generated successfully!\n";
     cout << "Saved as: output/websites/" << filename << ".svg\n";
 }
+void generateTextQR()
+{
+    cin.ignore();
+
+    string text;
+    string filename;
+
+    cout << "\nEnter Text: ";
+    getline(cin, text);
+
+    cout << "Enter output file name (without .svg): ";
+    getline(cin, filename);
+
+    QrCode qr = QrCode::encodeText(text.c_str(), QrCode::Ecc::LOW);
+
+    saveSvg(qr, "output/text/" + filename + ".svg");
+
+    cout << "\nQR Code generated successfully!\n";
+    cout << "Saved as: output/text/" << filename << ".svg\n";
+}
+void generateWifiQR()
+{
+    cin.ignore();
+
+    string ssid;
+    string password;
+    string security;
+    string filename;
+
+    cout << "\nEnter Wi-Fi Name (SSID): ";
+    getline(cin, ssid);
+
+    cout << "Enter Password: ";
+    getline(cin, password);
+
+    cout << "Security Type (WPA/WEP/nopass): ";
+    getline(cin, security);
+
+    cout << "Enter output file name (without .svg): ";
+    getline(cin, filename);
+
+    string wifiData = "WIFI:T:" + security +
+                      ";S:" + ssid +
+                      ";P:" + password + ";;";
+
+    QrCode qr = QrCode::encodeText(wifiData.c_str(), QrCode::Ecc::LOW);
+
+    saveSvg(qr, "output/wifi/" + filename + ".svg");
+
+    cout << "\nWi-Fi QR Code generated successfully!\n";
+    cout << "Saved as: output/wifi/" << filename << ".svg\n";
+}
 void showMenu()
 {
     cout << "\n====================================\n";
@@ -87,12 +139,12 @@ int main()
             break;
 
             case 2:
-                cout << "\nPlain Text selected.\n";
-                break;
+            generateTextQR();
+            break;
 
             case 3:
-                cout << "\nWi-Fi selected.\n";
-                break;
+            generateWifiQR();
+            break;
 
             case 4:
                 cout << "\nEmail selected.\n";
