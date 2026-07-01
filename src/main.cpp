@@ -107,6 +107,70 @@ void generateWifiQR()
     cout << "\nWi-Fi QR Code generated successfully!\n";
     cout << "Saved as: output/wifi/" << filename << ".svg\n";
 }
+void generateEmailQR()
+{
+    cin.ignore();
+
+    string email;
+    string subject;
+    string body;
+    string filename;
+
+    cout << "\nEnter Email Address: ";
+    getline(cin, email);
+
+    cout << "Enter Subject: ";
+    getline(cin, subject);
+
+    string line;
+
+    cout << "\nEnter Email Body (Type END on a new line to finish):\n";
+
+    while (true)
+    {
+    getline(cin, line);
+    if (line == "END")
+        break;
+    body += line + "\n";
+}
+
+    cout << "Enter output file name (without .svg): ";
+    getline(cin, filename);
+
+    string emailData = "mailto:" + email +
+                       "?subject=" + subject +
+                       "&body=" + body;
+
+    QrCode qr = QrCode::encodeText(emailData.c_str(), QrCode::Ecc::LOW);
+
+    saveSvg(qr, "output/email/" + filename + ".svg");
+
+    cout << "\nEmail QR generated successfully!\n";
+    cout << "Saved as: output/email/" << filename << ".svg\n";
+}
+void generatePhoneQR()
+{
+    cin.ignore();
+
+    string phone;
+    string filename;
+
+    cout << "\nEnter Phone Number (include country code if needed): ";
+    getline(cin, phone);
+
+    cout << "Enter output file name (without .svg): ";
+    getline(cin, filename);
+
+    string phoneData = "tel:" + phone;
+
+    QrCode qr = QrCode::encodeText(phoneData.c_str(), QrCode::Ecc::LOW);
+
+    saveSvg(qr, "output/phone/" + filename + ".svg");
+
+    cout << "\nPhone QR generated successfully!\n";
+    cout << "Saved as: output/phone/" << filename << ".svg\n";
+}
+
 void showMenu()
 {
     cout << "\n====================================\n";
@@ -147,12 +211,12 @@ int main()
             break;
 
             case 4:
-                cout << "\nEmail selected.\n";
-                break;
+            generateEmailQR();
+            break;
 
             case 5:
-                cout << "\nPhone selected.\n";
-                break;
+            generatePhoneQR();
+            break;
 
             case 6:
                 cout << "\nContact selected.\n";
