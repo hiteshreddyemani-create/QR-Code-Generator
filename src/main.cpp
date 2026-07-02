@@ -215,6 +215,50 @@ void generateContactQR()
     cout << "\nContact QR generated successfully!\n";
     cout << "Saved as: output/contacts/" << filename << ".svg\n";
 }
+void generateUPIQR()
+{
+    cin.ignore();
+
+    string upiId;
+    string name;
+    string amount;
+    string note;
+    string filename;
+
+    cout << "\nEnter UPI ID: ";
+    getline(cin, upiId);
+
+    cout << "Enter Payee Name: ";
+    getline(cin, name);
+
+    cout << "Enter Amount (Press Enter to skip): ";
+    getline(cin, amount);
+
+    cout << "Enter Payment Note (Press Enter to skip): ";
+    getline(cin, note);
+
+    cout << "Enter output file name (without .svg): ";
+    getline(cin, filename);
+
+    string upiData = "upi://pay?";
+    upiData += "pa=" + upiId;
+    upiData += "&pn=" + name;
+
+    if (!amount.empty())
+        upiData += "&am=" + amount;
+
+    upiData += "&cu=INR";
+
+    if (!note.empty())
+        upiData += "&tn=" + note;
+
+    QrCode qr = QrCode::encodeText(upiData.c_str(), QrCode::Ecc::LOW);
+
+    saveSvg(qr, "output/upi/" + filename + ".svg");
+
+    cout << "\nUPI Payment QR generated successfully!\n";
+    cout << "Saved as: output/upi/" << filename << ".svg\n";
+}
 void showMenu()
 {
     cout << "\n====================================\n";
@@ -226,7 +270,8 @@ void showMenu()
     cout << "4. Email QR\n";
     cout << "5. Phone QR\n";
     cout << "6. Contact (vCard)\n";
-    cout << "7. Exit\n";
+    cout << "7. UPI Payment QR\n";
+    cout << "8. Exit\n";
     cout << "\nEnter your choice: ";
 }
 
@@ -263,12 +308,16 @@ int main()
             break;
 
             case 6:
-                generateContactQR();
-                break;
+            generateContactQR();
+            break;
 
             case 7:
-                cout << "\nThank you for using QR Code Generator!\n";
-                return 0;
+            generateUPIQR();
+            break;
+
+            case 8:
+            cout << "\nThank you for using QR Code Generator!\n";
+            return 0;
 
             default:
                 cout << "\nInvalid choice! Please try again.\n";
