@@ -38,12 +38,26 @@ void saveSvg(const QrCode &qr, const string &filename)
 
 void generateWebsiteQR()
 {
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.ignore();
 
-    string url, filename;
+    string url;
+    string filename;
 
     cout << "\nEnter Website URL: ";
     getline(cin, url);
+
+    
+    if (url.empty())
+    {
+        cout << "\nError: Website URL cannot be empty!\n";
+        return;
+    }
+
+    
+    if (url.find("http://") != 0 && url.find("https://") != 0)
+    {
+        url = "https://" + url;
+    }
 
     cout << "Enter output file name (without .svg): ";
     getline(cin, filename);
@@ -114,32 +128,60 @@ void generateEmailQR()
     string email;
     string subject;
     string body;
+    string line;
     string filename;
 
-    cout << "\nEnter Email Address: ";
+    cout << "\nEnter Recipient Email Address: ";
     getline(cin, email);
 
-    cout << "Enter Subject: ";
+    if (email.empty())
+    {
+        cout << "\nError: Email address cannot be empty!\n";
+        return;
+    }
+
+    if (email.find('@') == string::npos)
+    {
+        cout << "\nError: Invalid email address!\n";
+        return;
+    }
+
+    cout << "Enter Email Subject: ";
     getline(cin, subject);
 
-    string line;
+    if (subject.empty())
+    {
+        cout << "\nError: Subject cannot be empty!\n";
+        return;
+    }
 
     cout << "\nEnter Email Body (Type END on a new line to finish):\n";
 
     while (true)
     {
-    getline(cin, line);
-    if (line == "END")
-        break;
-    body += line + "\n";
-}
+        getline(cin, line);
+
+        if (line == "END")
+            break;
+
+        body += line + "\n";
+    }
 
     cout << "Enter output file name (without .svg): ";
     getline(cin, filename);
 
-    string emailData = "mailto:" + email +
-                       "?subject=" + subject +
-                       "&body=" + body;
+    if (filename.empty())
+    {
+        cout << "\nError: File name cannot be empty!\n";
+        return;
+    }
+
+    string emailData = "mailto:" + email + "?subject=" + subject;
+
+    if (!body.empty())
+    {
+        emailData += "&body=" + body;
+    }
 
     QrCode qr = QrCode::encodeText(emailData.c_str(), QrCode::Ecc::LOW);
 
@@ -152,16 +194,64 @@ void generatePhoneQR()
 {
     cin.ignore();
 
-    string phone;
+    string countryCode;
+    string mobileNumber;
     string filename;
 
-    cout << "\nEnter Phone Number (include country code if needed): ";
-    getline(cin, phone);
+    cout << "\nEnter Country Code (without +): ";
+    getline(cin, countryCode);
+
+    
+    if (countryCode.empty())
+    {
+        cout << "\nError: Country code cannot be empty!\n";
+        return;
+    }
+
+    if (countryCode.length() > 3)
+    {
+        cout << "\nError: Country code must contain 1 to 3 digits!\n";
+        return;
+    }
+
+    for (char ch : countryCode)
+    {
+        if (!isdigit(ch))
+        {
+            cout << "\nError: Country code should contain only digits!\n";
+            return;
+        }
+    }
+
+    cout << "Enter 10-digit Mobile Number: ";
+    getline(cin, mobileNumber);
+
+    
+    if (mobileNumber.length() != 10)
+    {
+        cout << "\nError: Mobile number must contain exactly 10 digits!\n";
+        return;
+    }
+
+    for (char ch : mobileNumber)
+    {
+        if (!isdigit(ch))
+        {
+            cout << "\nError: Mobile number should contain only digits!\n";
+            return;
+        }
+    }
 
     cout << "Enter output file name (without .svg): ";
     getline(cin, filename);
 
-    string phoneData = "tel:" + phone;
+    if (filename.empty())
+    {
+        cout << "\nError: File name cannot be empty!\n";
+        return;
+    }
+
+    string phoneData = "tel:+" + countryCode + mobileNumber;
 
     QrCode qr = QrCode::encodeText(phoneData.c_str(), QrCode::Ecc::LOW);
 
@@ -175,7 +265,8 @@ void generateContactQR()
     cin.ignore();
 
     string name;
-    string phone;
+    string countryCode;
+    string mobileNumber;
     string email;
     string organization;
     string filename;
@@ -183,17 +274,79 @@ void generateContactQR()
     cout << "\nEnter Full Name: ";
     getline(cin, name);
 
-    cout << "Enter Phone Number: ";
-    getline(cin, phone);
+    if (name.empty())
+    {
+        cout << "\nError: Name cannot be empty!\n";
+        return;
+    }
+
+    cout << "Enter Country Code (without +): ";
+    getline(cin, countryCode);
+
+    if (countryCode.empty())
+    {
+        cout << "\nError: Country code cannot be empty!\n";
+        return;
+    }
+
+    if (countryCode.length() > 3)
+    {
+        cout << "\nError: Country code must contain 1 to 3 digits!\n";
+        return;
+    }
+
+    for (char ch : countryCode)
+    {
+        if (!isdigit(ch))
+        {
+            cout << "\nError: Country code should contain only digits!\n";
+            return;
+        }
+    }
+
+    cout << "Enter 10-digit Mobile Number: ";
+    getline(cin, mobileNumber);
+
+    if (mobileNumber.length() != 10)
+    {
+        cout << "\nError: Mobile number must contain exactly 10 digits!\n";
+        return;
+    }
+
+    for (char ch : mobileNumber)
+    {
+        if (!isdigit(ch))
+        {
+            cout << "\nError: Mobile number should contain only digits!\n";
+            return;
+        }
+    }
 
     cout << "Enter Email Address (Press Enter to skip): ";
     getline(cin, email);
+
+    if (!email.empty())
+    {
+        if (email.find('@') == string::npos)
+        {
+            cout << "\nError: Invalid email address!\n";
+            return;
+        }
+    }
 
     cout << "Enter Organization (Press Enter to skip): ";
     getline(cin, organization);
 
     cout << "Enter output file name (without .svg): ";
     getline(cin, filename);
+
+    if (filename.empty())
+    {
+        cout << "\nError: File name cannot be empty!\n";
+        return;
+    }
+
+    string phone = "+" + countryCode + mobileNumber;
 
     string vcard = "BEGIN:VCARD\n";
     vcard += "VERSION:3.0\n";
