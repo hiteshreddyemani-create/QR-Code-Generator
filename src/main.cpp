@@ -170,7 +170,51 @@ void generatePhoneQR()
     cout << "\nPhone QR generated successfully!\n";
     cout << "Saved as: output/phone/" << filename << ".svg\n";
 }
+void generateContactQR()
+{
+    cin.ignore();
 
+    string name;
+    string phone;
+    string email;
+    string organization;
+    string filename;
+
+    cout << "\nEnter Full Name: ";
+    getline(cin, name);
+
+    cout << "Enter Phone Number: ";
+    getline(cin, phone);
+
+    cout << "Enter Email Address (Press Enter to skip): ";
+    getline(cin, email);
+
+    cout << "Enter Organization (Press Enter to skip): ";
+    getline(cin, organization);
+
+    cout << "Enter output file name (without .svg): ";
+    getline(cin, filename);
+
+    string vcard = "BEGIN:VCARD\n";
+    vcard += "VERSION:3.0\n";
+    vcard += "FN:" + name + "\n";
+    vcard += "TEL;TYPE=CELL:" + phone + "\n";
+
+    if (!email.empty())
+        vcard += "EMAIL:" + email + "\n";
+
+    if (!organization.empty())
+        vcard += "ORG:" + organization + "\n";
+
+    vcard += "END:VCARD";
+
+    QrCode qr = QrCode::encodeText(vcard.c_str(), QrCode::Ecc::LOW);
+
+    saveSvg(qr, "output/contacts/" + filename + ".svg");
+
+    cout << "\nContact QR generated successfully!\n";
+    cout << "Saved as: output/contacts/" << filename << ".svg\n";
+}
 void showMenu()
 {
     cout << "\n====================================\n";
@@ -219,7 +263,7 @@ int main()
             break;
 
             case 6:
-                cout << "\nContact selected.\n";
+                generateContactQR();
                 break;
 
             case 7:
