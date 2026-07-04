@@ -381,17 +381,108 @@ void generateUPIQR()
     cout << "\nEnter UPI ID: ";
     getline(cin, upiId);
 
+    // Validate UPI ID
+    if (upiId.empty())
+    {
+        cout << "\nError: UPI ID cannot be empty!\n";
+        return;
+    }
+
+    if (upiId.find('@') == string::npos)
+    {
+        cout << "\nError: Invalid UPI ID!\n";
+        return;
+    }
+
     cout << "Enter Payee Name: ";
     getline(cin, name);
 
+    if (name.empty())
+    {
+        cout << "\nError: Payee name cannot be empty!\n";
+        return;
+    }
+
     cout << "Enter Amount (Press Enter to skip): ";
     getline(cin, amount);
+
+// Validate Amount
+if (!amount.empty())
+{
+    bool decimalFound = false;
+
+    // Decimal cannot be first or last
+    if (amount.front() == '.' || amount.back() == '.')
+    {
+        cout << "\nError: Invalid amount format!\n";
+        return;
+    }
+
+    for (char ch : amount)
+    {
+        if (isdigit(ch))
+        {
+            continue;
+        }
+        else if (ch == '.')
+        {
+            if (decimalFound)
+            {
+                cout << "\nError: Invalid amount format!\n";
+                return;
+            }
+
+            decimalFound = true;
+        }
+        else
+        {
+            cout << "\nError: Amount should contain only digits and one decimal point!\n";
+            return;
+        }
+    }
+
+    
+
+    size_t decimalPos = amount.find('.');
+
+    if (decimalPos == string::npos)
+    {
+        // No decimal point
+        size_t firstNonZero = amount.find_first_not_of('0');
+
+        if (firstNonZero == string::npos)
+            amount = "0";
+        else
+            amount = amount.substr(firstNonZero);
+    }
+    else
+    {
+        string integerPart = amount.substr(0, decimalPos);
+        string decimalPart = amount.substr(decimalPos + 1);
+
+        size_t firstNonZero = integerPart.find_first_not_of('0');
+
+        if (firstNonZero == string::npos)
+            integerPart = "0";
+        else
+            integerPart = integerPart.substr(firstNonZero);
+
+        amount = integerPart + "." + decimalPart;
+    }
+}
 
     cout << "Enter Payment Note (Press Enter to skip): ";
     getline(cin, note);
 
     cout << "Enter output file name (without .svg): ";
     getline(cin, filename);
+
+    // Validate File Name
+    if (filename.empty())
+    {
+        cout << "\nError: File name cannot be empty!\n";
+        return;
+    }
 
     string upiData = "upi://pay?";
     upiData += "pa=" + upiId;
