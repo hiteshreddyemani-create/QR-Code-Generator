@@ -9,6 +9,27 @@
 using namespace std;
 using qrcodegen::QrCode;
  //helpers
+ bool confirmOverwrite(string &path)
+{
+    if (!fileExists(path))
+        return true;
+
+    int choice;
+
+    cout << "\nA file with this name already exists.\n";
+    cout << "1. Overwrite\n";
+    cout << "2. Cancel\n";
+    cout << "\nEnter your choice: ";
+
+    cin >> choice;
+
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    if (choice == 1)
+        return true;
+
+    return false;
+}
  bool fileExists(const string &path)
 {
     ifstream file(path);
@@ -181,11 +202,8 @@ void generateWebsiteQR()
     QrCode qr = QrCode::encodeText(url.c_str(), ecc);
     string path = "output/websites/" + filename + ".svg";
 
-    if (fileExists(path))
-    {
-    cout << "\nError: A file with this name already exists.\n";
+    if (!confirmOverwrite(path))
     return;
-    }
 
     saveSvg(qr, path);
 
@@ -234,11 +252,8 @@ void generateTextQR()
     QrCode qr = QrCode::encodeText(text.c_str(), ecc);
     string path = "output/text/" + filename + ".svg";
 
-    if (fileExists(path))
-    {
-    cout << "\nError: A file with this name already exists.\n";
+    if (!confirmOverwrite(path))
     return;
-    }
 
     saveSvg(qr, path);
 
@@ -343,11 +358,8 @@ void generateWiFiQR()
     QrCode qr = QrCode::encodeText(wifiData.c_str(), ecc);
     string path = "output/wifi/" + filename + ".svg";
 
-    if (fileExists(path))
-    {
-    cout << "\nError: A file with this name already exists.\n";
+    if (!confirmOverwrite(path))
     return;
-    }
 
     saveSvg(qr, path);
 
@@ -429,11 +441,8 @@ void generateEmailQR()
     QrCode qr = QrCode::encodeText(emailData.c_str(), ecc);
     string path = "output/email/" + filename + ".svg";
 
-    if (fileExists(path))
-    {
-    cout << "\nError: A file with this name already exists.\n";
+    if (!confirmOverwrite(path))
     return;
-    }
 
     saveSvg(qr, path);
 
@@ -517,11 +526,8 @@ void generatePhoneQR()
     QrCode qr = QrCode::encodeText(phoneData.c_str(), ecc);
     string path = "output/phone/" + filename + ".svg";
 
-    if (fileExists(path))
-    {
-    cout << "\nError: A file with this name already exists.\n";
+    if (!confirmOverwrite(path))
     return;
-    }
 
     saveSvg(qr, path);
 
@@ -646,11 +652,8 @@ void generateContactQR()
     QrCode qr = QrCode::encodeText(vcard.c_str(), ecc);
     string path = "output/contacts/" + filename + ".svg";
 
-    if (fileExists(path))
-    {
-    cout << "\nError: A file with this name already exists.\n";
+    if (!confirmOverwrite(path))
     return;
-    }
 
     saveSvg(qr, path);
 
@@ -801,11 +804,8 @@ if (!amount.empty())
     QrCode qr = QrCode::encodeText(upiData.c_str(), ecc);
     string path = "output/upi/" + filename + ".svg";
 
-    if (fileExists(path))
-    {
-    cout << "\nError: A file with this name already exists.\n";
+    if (!confirmOverwrite(path))
     return;
-    }
 
     saveSvg(qr, path);
 
