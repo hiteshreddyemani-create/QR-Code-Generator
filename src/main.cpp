@@ -6,6 +6,19 @@
 
 using namespace std;
 using qrcodegen::QrCode;
+string trim(string str)
+{
+    int start = 0;
+    int end = str.length() - 1;
+
+    while (start <= end && isspace(str[start]))
+        start++;
+
+    while (end >= start && isspace(str[end]))
+        end--;
+
+    return str.substr(start, end - start + 1);
+}
 
 void saveSvg(const QrCode &qr, const string &filename)
 {
@@ -45,6 +58,7 @@ void generateWebsiteQR()
 
     cout << "\nEnter Website URL: ";
     getline(cin, url);
+    url = trim(url);
 
     
     if (url.empty())
@@ -61,6 +75,7 @@ void generateWebsiteQR()
 
     cout << "Enter output file name (without .svg): ";
     getline(cin, filename);
+    filename = trim(filename);
 
     QrCode qr = QrCode::encodeText(url.c_str(), QrCode::Ecc::LOW);
 
@@ -78,9 +93,11 @@ void generateTextQR()
 
     cout << "\nEnter Text: ";
     getline(cin, text);
+    text = trim(text);
 
     cout << "Enter output file name (without .svg): ";
     getline(cin, filename);
+    filename= trim(filename);
 
     QrCode qr = QrCode::encodeText(text.c_str(), QrCode::Ecc::LOW);
 
@@ -89,7 +106,7 @@ void generateTextQR()
     cout << "\nQR Code generated successfully!\n";
     cout << "Saved as: output/text/" << filename << ".svg\n";
 }
-void generateWifiQR()
+void generateWiFiQR()
 {
     cin.ignore();
 
@@ -100,25 +117,89 @@ void generateWifiQR()
 
     cout << "\nEnter Wi-Fi Name (SSID): ";
     getline(cin, ssid);
+    ssid = trim(ssid);
 
-    cout << "Enter Password: ";
-    getline(cin, password);
+    if (ssid.empty())
+    {
+        cout << "\nError: Wi-Fi Name (SSID) cannot be empty!\n";
+        return;
+    }
 
-    cout << "Security Type (WPA/WEP/nopass): ";
+    cout << "Enter Security Type (WPA/WPA2/WEP/nopass): ";
     getline(cin, security);
+    security = trim(security);
+
+    // Convert security type to lowercase
+    for (char &ch : security)
+    {
+        ch = tolower(ch);
+    }
+
+    // Validate security type
+    if (security != "wpa" &&
+        security != "wpa2" &&
+        security != "wep" &&
+        security != "nopass")
+    {
+        cout << "\nError: Invalid security type!\n";
+        return;
+    }
+
+    if (security != "nopass")
+    {
+        cout << "Enter Wi-Fi Password: ";
+        getline(cin, password);
+        password = trim(password);
+
+        if (password.empty())
+        {
+            cout << "\nError: Password cannot be empty for secured networks!\n";
+            return;
+        }
+    }
 
     cout << "Enter output file name (without .svg): ";
     getline(cin, filename);
+    filename = trim(filename);
 
-    string wifiData = "WIFI:T:" + security +
-                      ";S:" + ssid +
-                      ";P:" + password + ";;";
+    if (filename.empty())
+    {
+        cout << "\nError: File name cannot be empty!\n";
+        return;
+    }
+
+    // Convert to QR format
+    string qrSecurity;
+
+    if (security == "wpa")
+        qrSecurity = "WPA";
+    else if (security == "wpa2")
+        qrSecurity = "WPA2";
+    else if (security == "wep")
+        qrSecurity = "WEP";
+    else
+        qrSecurity = "nopass";
+
+    string wifiData;
+
+    if (qrSecurity == "nopass")
+    {
+        wifiData = "WIFI:T:nopass;S:" + ssid + ";;";
+    }
+    else
+    {
+        wifiData = "WIFI:T:" + qrSecurity +
+                   ";S:" + ssid +
+                   ";P:" + password + ";;";
+    }
 
     QrCode qr = QrCode::encodeText(wifiData.c_str(), QrCode::Ecc::LOW);
 
     saveSvg(qr, "output/wifi/" + filename + ".svg");
 
-    cout << "\nWi-Fi QR Code generated successfully!\n";
+    cout << "\n====================================\n";
+    cout << "  Wi-Fi QR Generated Successfully\n";
+    cout << "====================================\n";
     cout << "Saved as: output/wifi/" << filename << ".svg\n";
 }
 void generateEmailQR()
@@ -133,6 +214,7 @@ void generateEmailQR()
 
     cout << "\nEnter Recipient Email Address: ";
     getline(cin, email);
+    email=trim(email);
 
     if (email.empty())
     {
@@ -169,6 +251,7 @@ void generateEmailQR()
 
     cout << "Enter output file name (without .svg): ";
     getline(cin, filename);
+    filename =trim(filename);
 
     if (filename.empty())
     {
@@ -200,6 +283,7 @@ void generatePhoneQR()
 
     cout << "\nEnter Country Code (without +): ";
     getline(cin, countryCode);
+    countryCode = trim(countryCode);
 
     
     if (countryCode.empty())
@@ -225,6 +309,7 @@ void generatePhoneQR()
 
     cout << "Enter 10-digit Mobile Number: ";
     getline(cin, mobileNumber);
+    mobileNumber = trim(mobileNumber);
 
     
     if (mobileNumber.length() != 10)
@@ -244,6 +329,7 @@ void generatePhoneQR()
 
     cout << "Enter output file name (without .svg): ";
     getline(cin, filename);
+    filename =trim(filename);
 
     if (filename.empty())
     {
@@ -273,6 +359,7 @@ void generateContactQR()
 
     cout << "\nEnter Full Name: ";
     getline(cin, name);
+    name= trim(name);
 
     if (name.empty())
     {
@@ -282,6 +369,7 @@ void generateContactQR()
 
     cout << "Enter Country Code (without +): ";
     getline(cin, countryCode);
+    countryCode= trim(countryCode);
 
     if (countryCode.empty())
     {
@@ -306,6 +394,7 @@ void generateContactQR()
 
     cout << "Enter 10-digit Mobile Number: ";
     getline(cin, mobileNumber);
+    mobileNumber = trim(mobileNumber);
 
     if (mobileNumber.length() != 10)
     {
@@ -324,6 +413,7 @@ void generateContactQR()
 
     cout << "Enter Email Address (Press Enter to skip): ";
     getline(cin, email);
+    email = trim(email);
 
     if (!email.empty())
     {
@@ -336,9 +426,11 @@ void generateContactQR()
 
     cout << "Enter Organization (Press Enter to skip): ";
     getline(cin, organization);
+    organization = trim(organization);
 
     cout << "Enter output file name (without .svg): ";
     getline(cin, filename);
+    filename =trim(filename);
 
     if (filename.empty())
     {
@@ -380,6 +472,7 @@ void generateUPIQR()
 
     cout << "\nEnter UPI ID: ";
     getline(cin, upiId);
+    upiId = trim(upiId);
 
     // Validate UPI ID
     if (upiId.empty())
@@ -396,6 +489,7 @@ void generateUPIQR()
 
     cout << "Enter Payee Name: ";
     getline(cin, name);
+    name = trim(name);
 
     if (name.empty())
     {
@@ -405,6 +499,7 @@ void generateUPIQR()
 
     cout << "Enter Amount (Press Enter to skip): ";
     getline(cin, amount);
+    amount = trim(amount);
 
 // Validate Amount
 if (!amount.empty())
@@ -473,9 +568,11 @@ if (!amount.empty())
 
     cout << "Enter Payment Note (Press Enter to skip): ";
     getline(cin, note);
+    note = trim(note);
 
     cout << "Enter output file name (without .svg): ";
     getline(cin, filename);
+    filename =trim(filename);
 
     // Validate File Name
     if (filename.empty())
@@ -540,7 +637,7 @@ int main()
             break;
 
             case 3:
-            generateWifiQR();
+            generateWiFiQR();
             break;
 
             case 4:
