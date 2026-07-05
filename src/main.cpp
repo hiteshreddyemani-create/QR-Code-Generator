@@ -757,6 +757,29 @@ if (!amount.empty())
     cout << "\nUPI Payment QR generated successfully!\n";
     cout << "Saved as: output/upi/" << filename << ".svg\n";
 }
+void viewHistory()
+{
+    ifstream history("logs/history.txt");
+
+    if (!history.is_open())
+    {
+        cout << "\nNo history found.\n";
+        return;
+    }
+
+    cout << "\n====================================\n";
+    cout << "         QR HISTORY\n";
+    cout << "====================================\n\n";
+
+    string line;
+
+    while (getline(history, line))
+    {
+        cout << line << endl;
+    }
+
+    history.close();
+}
 void showMenu()
 {
     cout << "\n====================================\n";
@@ -814,8 +837,12 @@ int main()
             break;
 
             case 8:
+            viewHistory();
+            break;
+
+            case 9:
             cout << "\nThank you for using QR Code Generator!\n";
-            return 0;
+            break;
 
             default:
                 cout << "\nInvalid choice! Please try again.\n";
