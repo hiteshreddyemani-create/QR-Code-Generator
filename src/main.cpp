@@ -9,6 +9,11 @@
 using namespace std;
 using qrcodegen::QrCode;
  //helpers
+ bool fileExists(const string &path)
+{
+    ifstream file(path);
+    return file.good();
+}
 string getECCLevelName(QrCode::Ecc ecc)
 {
     switch (ecc)
@@ -29,11 +34,7 @@ string getECCLevelName(QrCode::Ecc ecc)
             return "UNKNOWN";
     }
 }
-void saveHistory(string type,
-                 string filename,
-                 string location,
-                 string eccLevel)
-{
+void saveHistory(string type,string filename,string location,string eccLevel){
     ofstream history("logs/history.txt", ios::app);
 
     if (!history.is_open())
@@ -178,13 +179,24 @@ void generateWebsiteQR()
 
     QrCode::Ecc ecc = chooseErrorCorrectionLevel();
     QrCode qr = QrCode::encodeText(url.c_str(), ecc);
-    saveSvg(qr, "output/websites/" + filename + ".svg");
-   saveHistory(
+    string path = "output/websites/" + filename + ".svg";
+
+    if (fileExists(path))
+    {
+    cout << "\nError: A file with this name already exists.\n";
+    return;
+    }
+
+    saveSvg(qr, path);
+
+    saveHistory(
     "Website QR",
     filename + ".svg",
-    "output/websites/" + filename + ".svg",
+    path,
     getECCLevelName(ecc)
     );
+
+
 
     cout << "\nQR Code generated successfully!\n";
     cout << "Saved as: output/websites/" << filename << ".svg\n";
@@ -220,18 +232,25 @@ void generateTextQR()
 
     QrCode::Ecc ecc = chooseErrorCorrectionLevel();
     QrCode qr = QrCode::encodeText(text.c_str(), ecc);
-    saveSvg(qr, "output/text/" + filename + ".svg");
+    string path = "output/text/" + filename + ".svg";
+
+    if (fileExists(path))
+    {
+    cout << "\nError: A file with this name already exists.\n";
+    return;
+    }
+
+    saveSvg(qr, path);
+
     saveHistory(
     "Plain Text QR",
     filename + ".svg",
-    "output/text/" + filename + ".svg",
+    path,
     getECCLevelName(ecc)
     );
 
-    cout << "\n====================================\n";
-    cout << " Plain Text QR Generated Successfully\n";
-    cout << "====================================\n";
-    cout << "Saved as: output/text/" << filename << ".svg\n";
+cout << "\nQR Code generated successfully!\n";
+cout << "Saved as: " << path << "\n";
 }
 void generateWiFiQR()
 {
@@ -322,18 +341,25 @@ void generateWiFiQR()
 
     QrCode::Ecc ecc = chooseErrorCorrectionLevel();
     QrCode qr = QrCode::encodeText(wifiData.c_str(), ecc);
-    saveSvg(qr, "output/wifi/" + filename + ".svg");
+    string path = "output/wifi/" + filename + ".svg";
+
+    if (fileExists(path))
+    {
+    cout << "\nError: A file with this name already exists.\n";
+    return;
+    }
+
+    saveSvg(qr, path);
+
     saveHistory(
     "Wi-Fi QR",
     filename + ".svg",
-    "output/wifi/" + filename + ".svg",
+    path,
     getECCLevelName(ecc)
     );
 
-    cout << "\n====================================\n";
-    cout << "  Wi-Fi QR Generated Successfully\n";
-    cout << "====================================\n";
-    cout << "Saved as: output/wifi/" << filename << ".svg\n";
+cout << "\nWi-Fi QR generated successfully!\n";
+cout << "Saved as: " << path << "\n";
 }
 void generateEmailQR()
 {
@@ -401,16 +427,25 @@ void generateEmailQR()
 
     QrCode::Ecc ecc = chooseErrorCorrectionLevel();
     QrCode qr = QrCode::encodeText(emailData.c_str(), ecc);
-    saveSvg(qr, "output/email/" + filename + ".svg");
+    string path = "output/email/" + filename + ".svg";
+
+    if (fileExists(path))
+    {
+    cout << "\nError: A file with this name already exists.\n";
+    return;
+    }
+
+    saveSvg(qr, path);
+
     saveHistory(
     "Email QR",
     filename + ".svg",
-    "output/email/" + filename + ".svg",
+    path,
     getECCLevelName(ecc)
     );
 
-    cout << "\nEmail QR generated successfully!\n";
-    cout << "Saved as: output/email/" << filename << ".svg\n";
+cout << "\nEmail QR generated successfully!\n";
+cout << "Saved as: " << path << "\n";
 }
 void generatePhoneQR()
 {
@@ -480,16 +515,25 @@ void generatePhoneQR()
 
     QrCode::Ecc ecc = chooseErrorCorrectionLevel();
     QrCode qr = QrCode::encodeText(phoneData.c_str(), ecc);
-    saveSvg(qr, "output/phone/" + filename + ".svg");
-   saveHistory(
-    "Contact QR",
+    string path = "output/phone/" + filename + ".svg";
+
+    if (fileExists(path))
+    {
+    cout << "\nError: A file with this name already exists.\n";
+    return;
+    }
+
+    saveSvg(qr, path);
+
+    saveHistory(
+    "Phone QR",
     filename + ".svg",
-    "output/contacts/" + filename + ".svg",
+    path,
     getECCLevelName(ecc)
     );
 
-    cout << "\nPhone QR generated successfully!\n";
-    cout << "Saved as: output/phone/" << filename << ".svg\n";
+cout << "\nPhone QR generated successfully!\n";
+cout << "Saved as: " << path << "\n";
 }
 void generateContactQR()
 {
@@ -600,16 +644,25 @@ void generateContactQR()
 
     QrCode::Ecc ecc = chooseErrorCorrectionLevel();
     QrCode qr = QrCode::encodeText(vcard.c_str(), ecc);
-    saveSvg(qr, "output/contacts/" + filename + ".svg");
+    string path = "output/contacts/" + filename + ".svg";
+
+    if (fileExists(path))
+    {
+    cout << "\nError: A file with this name already exists.\n";
+    return;
+    }
+
+    saveSvg(qr, path);
+
     saveHistory(
     "Contact QR",
     filename + ".svg",
-    "output/contacts/" + filename + ".svg",
+    path,
     getECCLevelName(ecc)
     );
 
-    cout << "\nContact QR generated successfully!\n";
-    cout << "Saved as: output/contacts/" << filename << ".svg\n";
+cout << "\nContact QR generated successfully!\n";
+cout << "Saved as: " << path << "\n";
 }
 void generateUPIQR()
 {
@@ -746,16 +799,25 @@ if (!amount.empty())
 
     QrCode::Ecc ecc = chooseErrorCorrectionLevel();
     QrCode qr = QrCode::encodeText(upiData.c_str(), ecc);
-    saveSvg(qr, "output/upi/" + filename + ".svg");
+    string path = "output/upi/" + filename + ".svg";
+
+    if (fileExists(path))
+    {
+    cout << "\nError: A file with this name already exists.\n";
+    return;
+    }
+
+    saveSvg(qr, path);
+
     saveHistory(
     "UPI Payment QR",
     filename + ".svg",
-    "output/upi/" + filename + ".svg",
+    path,
     getECCLevelName(ecc)
     );
 
-    cout << "\nUPI Payment QR generated successfully!\n";
-    cout << "Saved as: output/upi/" << filename << ".svg\n";
+cout << "\nUPI QR generated successfully!\n";
+cout << "Saved as: " << path << "\n";
 }
 void viewHistory()
 {
