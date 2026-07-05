@@ -2,10 +2,62 @@
 #include <fstream>
 #include <string>
 #include <limits>
+#include <ctime>
+#include <iomanip>
 #include "qrcodegen.hpp"
 
 using namespace std;
 using qrcodegen::QrCode;
+ //helpers
+string getECCLevelName(QrCode::Ecc ecc)
+{
+    switch (ecc)
+    {
+        case QrCode::Ecc::LOW:
+            return "LOW";
+
+        case QrCode::Ecc::MEDIUM:
+            return "MEDIUM";
+
+        case QrCode::Ecc::QUARTILE:
+            return "QUARTILE";
+
+        case QrCode::Ecc::HIGH:
+            return "HIGH";
+
+        default:
+            return "UNKNOWN";
+    }
+}
+void saveHistory(string type,
+                 string filename,
+                 string location,
+                 string eccLevel)
+{
+    ofstream history("logs/history.txt", ios::app);
+
+    if (!history.is_open())
+    {
+        cout << "Error opening history file!\n";
+        return;
+    }
+
+    time_t now = time(0);
+    tm *localTime = localtime(&now);
+
+    char buffer[80];
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", localTime);
+
+    history << "=========================================\n";
+    history << "Date & Time : " << buffer << "\n";
+    history << "Type        : " << type << "\n";
+    history << "ECC Level   : " << eccLevel << "\n";
+    history << "File        : " << filename << "\n";
+    history << "Location    : " << location << "\n";
+    history << "=========================================\n\n";
+
+    history.close();
+}
 string trim(string str)
 {
     int start = 0;
@@ -19,7 +71,54 @@ string trim(string str)
 
     return str.substr(start, end - start + 1);
 }
+QrCode::Ecc chooseErrorCorrectionLevel()
+{
+    int choice;
 
+    while (true)
+    {
+        cout << "\n====================================\n";
+        cout << " Select Error Correction Level\n";
+        cout << "====================================\n";
+        cout << "1. LOW       (~7% Recovery)\n";
+        cout << "2. MEDIUM    (~15% Recovery)\n";
+        cout << "3. QUARTILE  (~25% Recovery)\n";
+        cout << "4. HIGH      (~30% Recovery)\n";
+
+        cout << "\nEnter your choice (1-4): ";
+
+        cin >> choice;
+
+        if (cin.fail())
+        {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+            cout << "\nInvalid input! Please enter a number between 1 and 4.\n";
+            continue;
+        }
+
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+        switch (choice)
+        {
+            case 1:
+                return QrCode::Ecc::LOW;
+
+            case 2:
+                return QrCode::Ecc::MEDIUM;
+
+            case 3:
+                return QrCode::Ecc::QUARTILE;
+
+            case 4:
+                return QrCode::Ecc::HIGH;
+
+            default:
+                cout << "\nPlease enter a number between 1 and 4.\n";
+        }
+    }
+}
 void saveSvg(const QrCode &qr, const string &filename)
 {
     ofstream file(filename);
@@ -77,9 +176,15 @@ void generateWebsiteQR()
     getline(cin, filename);
     filename = trim(filename);
 
-    QrCode qr = QrCode::encodeText(url.c_str(), QrCode::Ecc::LOW);
-
+    QrCode::Ecc ecc = chooseErrorCorrectionLevel();
+    QrCode qr = QrCode::encodeText(url.c_str(), ecc);
     saveSvg(qr, "output/websites/" + filename + ".svg");
+   saveHistory(
+    "Website QR",
+    filename + ".svg",
+    "output/websites/" + filename + ".svg",
+    getECCLevelName(ecc)
+    );
 
     cout << "\nQR Code generated successfully!\n";
     cout << "Saved as: output/websites/" << filename << ".svg\n";
@@ -95,15 +200,37 @@ void generateTextQR()
     getline(cin, text);
     text = trim(text);
 
+    // Validate text
+    if (text.empty())
+    {
+        cout << "\nError: Text cannot be empty!\n";
+        return;
+    }
+
     cout << "Enter output file name (without .svg): ";
     getline(cin, filename);
-    filename= trim(filename);
+    filename = trim(filename);
 
-    QrCode qr = QrCode::encodeText(text.c_str(), QrCode::Ecc::LOW);
+    // Validate filename
+    if (filename.empty())
+    {
+        cout << "\nError: File name cannot be empty!\n";
+        return;
+    }
 
+    QrCode::Ecc ecc = chooseErrorCorrectionLevel();
+    QrCode qr = QrCode::encodeText(text.c_str(), ecc);
     saveSvg(qr, "output/text/" + filename + ".svg");
+    saveHistory(
+    "Plain Text QR",
+    filename + ".svg",
+    "output/text/" + filename + ".svg",
+    getECCLevelName(ecc)
+    );
 
-    cout << "\nQR Code generated successfully!\n";
+    cout << "\n====================================\n";
+    cout << " Plain Text QR Generated Successfully\n";
+    cout << "====================================\n";
     cout << "Saved as: output/text/" << filename << ".svg\n";
 }
 void generateWiFiQR()
@@ -193,9 +320,15 @@ void generateWiFiQR()
                    ";P:" + password + ";;";
     }
 
-    QrCode qr = QrCode::encodeText(wifiData.c_str(), QrCode::Ecc::LOW);
-
+    QrCode::Ecc ecc = chooseErrorCorrectionLevel();
+    QrCode qr = QrCode::encodeText(wifiData.c_str(), ecc);
     saveSvg(qr, "output/wifi/" + filename + ".svg");
+    saveHistory(
+    "Wi-Fi QR",
+    filename + ".svg",
+    "output/wifi/" + filename + ".svg",
+    getECCLevelName(ecc)
+    );
 
     cout << "\n====================================\n";
     cout << "  Wi-Fi QR Generated Successfully\n";
@@ -266,9 +399,15 @@ void generateEmailQR()
         emailData += "&body=" + body;
     }
 
-    QrCode qr = QrCode::encodeText(emailData.c_str(), QrCode::Ecc::LOW);
-
+    QrCode::Ecc ecc = chooseErrorCorrectionLevel();
+    QrCode qr = QrCode::encodeText(emailData.c_str(), ecc);
     saveSvg(qr, "output/email/" + filename + ".svg");
+    saveHistory(
+    "Email QR",
+    filename + ".svg",
+    "output/email/" + filename + ".svg",
+    getECCLevelName(ecc)
+    );
 
     cout << "\nEmail QR generated successfully!\n";
     cout << "Saved as: output/email/" << filename << ".svg\n";
@@ -339,9 +478,15 @@ void generatePhoneQR()
 
     string phoneData = "tel:+" + countryCode + mobileNumber;
 
-    QrCode qr = QrCode::encodeText(phoneData.c_str(), QrCode::Ecc::LOW);
-
+    QrCode::Ecc ecc = chooseErrorCorrectionLevel();
+    QrCode qr = QrCode::encodeText(phoneData.c_str(), ecc);
     saveSvg(qr, "output/phone/" + filename + ".svg");
+   saveHistory(
+    "Contact QR",
+    filename + ".svg",
+    "output/contacts/" + filename + ".svg",
+    getECCLevelName(ecc)
+    );
 
     cout << "\nPhone QR generated successfully!\n";
     cout << "Saved as: output/phone/" << filename << ".svg\n";
@@ -453,9 +598,15 @@ void generateContactQR()
 
     vcard += "END:VCARD";
 
-    QrCode qr = QrCode::encodeText(vcard.c_str(), QrCode::Ecc::LOW);
-
+    QrCode::Ecc ecc = chooseErrorCorrectionLevel();
+    QrCode qr = QrCode::encodeText(vcard.c_str(), ecc);
     saveSvg(qr, "output/contacts/" + filename + ".svg");
+    saveHistory(
+    "Contact QR",
+    filename + ".svg",
+    "output/contacts/" + filename + ".svg",
+    getECCLevelName(ecc)
+    );
 
     cout << "\nContact QR generated successfully!\n";
     cout << "Saved as: output/contacts/" << filename << ".svg\n";
@@ -593,9 +744,15 @@ if (!amount.empty())
     if (!note.empty())
         upiData += "&tn=" + note;
 
-    QrCode qr = QrCode::encodeText(upiData.c_str(), QrCode::Ecc::LOW);
-
+    QrCode::Ecc ecc = chooseErrorCorrectionLevel();
+    QrCode qr = QrCode::encodeText(upiData.c_str(), ecc);
     saveSvg(qr, "output/upi/" + filename + ".svg");
+    saveHistory(
+    "UPI Payment QR",
+    filename + ".svg",
+    "output/upi/" + filename + ".svg",
+    getECCLevelName(ecc)
+    );
 
     cout << "\nUPI Payment QR generated successfully!\n";
     cout << "Saved as: output/upi/" << filename << ".svg\n";
